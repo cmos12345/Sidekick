@@ -1,16 +1,16 @@
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
+using PropertyChanged;
 using Sidekick.Core.Initialization;
 using Sidekick.Localization.Splash;
 
 namespace Sidekick.UI.Splash
 {
+    [AddINotifyPropertyChangedInterface]
     public class SplashViewModel : IDisposable, ISplashViewModel
     {
         private readonly IInitializer initializer;
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        private bool isDisposed;
 
         public SplashViewModel(IInitializer initializer)
         {
@@ -54,7 +54,23 @@ namespace Sidekick.UI.Splash
 
         public void Dispose()
         {
-            initializer.OnProgress -= Initializer_OnProgress;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                initializer.OnProgress -= Initializer_OnProgress;
+            }
+
+            isDisposed = true;
         }
     }
 }

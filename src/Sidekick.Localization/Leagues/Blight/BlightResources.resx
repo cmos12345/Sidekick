@@ -201,4 +201,7 @@ additional reward</value>
 25% chance for Blight Chests to have an
 additional Reward</value>
   </data>
+  <data name="Legend" xml:space="preserve">
+    <value>Legend</value>
+  </data>
 </root>

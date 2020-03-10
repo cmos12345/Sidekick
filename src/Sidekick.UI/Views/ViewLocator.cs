@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Sidekick.Localization;
@@ -10,6 +10,7 @@ namespace Sidekick.UI.Views
     public class ViewLocator : IViewLocator, IDisposable
     {
         private readonly IServiceProvider serviceProvider;
+        private bool isDisposed;
 
         public ViewLocator(IServiceProvider serviceProvider)
         {
@@ -18,16 +19,14 @@ namespace Sidekick.UI.Views
             Views = new List<ViewInstance>();
         }
 
-        public List<ViewInstance> Views { get; set; }
+        private List<ViewInstance> Views { get; set; }
 
         public void Open<TView>()
             where TView : ISidekickView
         {
-            var uiLanguageProvider = serviceProvider.GetService<IUILanguageProvider>();
-
-            var cultureInfo = new CultureInfo(uiLanguageProvider.Current.Name);
-            Thread.CurrentThread.CurrentCulture = cultureInfo;
-            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+            // Still needed for localization of league overlay models
+            Thread.CurrentThread.CurrentCulture = TranslationSource.Instance.CurrentCulture;
+            Thread.CurrentThread.CurrentUICulture = TranslationSource.Instance.CurrentCulture;
 
             var view = new ViewInstance(
                 serviceProvider.CreateScope(),
@@ -42,15 +41,44 @@ namespace Sidekick.UI.Views
             Views.Add(view);
         }
 
+        public bool IsOpened<TView>()
+        {
+            return Views.Any(x => x.ViewType == typeof(TView));
+        }
+
+        public void CloseAll()
+        {
+            for (var i = Views.Count; i > 0; i--)
+            {
+                Views[i - 1].View.Close();
+            }
+        }
+
         public void Dispose()
         {
-            if (Views != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed)
             {
-                foreach (var view in Views)
+                return;
+            }
+
+            if (disposing)
+            {
+                if (Views != null)
                 {
-                    view.Dispose();
+                    foreach (var view in Views)
+                    {
+                        view.Dispose();
+                    }
                 }
             }
+
+            isDisposed = true;
         }
     }
 }

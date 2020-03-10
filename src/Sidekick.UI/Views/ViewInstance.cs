@@ -5,9 +5,12 @@ namespace Sidekick.UI.Views
 {
     public class ViewInstance : IDisposable
     {
+        private bool isDisposed;
+
         public ViewInstance(IServiceScope scope, Type viewType)
         {
             Scope = scope;
+            ViewType = viewType;
             View = (ISidekickView)scope.ServiceProvider.GetService(viewType);
             View.Closed += View_Closed;
         }
@@ -15,6 +18,8 @@ namespace Sidekick.UI.Views
         public IServiceScope Scope { get; private set; }
 
         public ISidekickView View { get; private set; }
+
+        public Type ViewType { get; private set; }
 
         public event Action Disposed;
 
@@ -25,9 +30,25 @@ namespace Sidekick.UI.Views
 
         public void Dispose()
         {
-            View.Closed -= View_Closed;
-            Scope?.Dispose();
-            Disposed?.Invoke();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                View.Closed -= View_Closed;
+                Scope?.Dispose();
+                Disposed?.Invoke();
+            }
+
+            isDisposed = true;
         }
     }
 }

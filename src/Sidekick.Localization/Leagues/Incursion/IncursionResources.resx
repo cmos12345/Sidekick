@@ -182,7 +182,7 @@ Level 3: 3 Breaches</value>
     <value>Wealth of the Vaal</value>
   </data>
   <data name="VaultContains" xml:space="preserve">
-    <value>Currency Items inckuding Stacks and Shards</value>
+    <value>Currency Items including Stacks and Shards</value>
   </data>
   <data name="SparringRoom" xml:space="preserve">
     <value>Sparring Room</value>
@@ -275,7 +275,7 @@ Level 3: Double Gem Corruption</value>
     <value>Court of Sealed Death</value>
   </data>
   <data name="StrongboxChamberContains" xml:space="preserve">
-    <value>Room contains 2/4/6 Stringboxes</value>
+    <value>Room contains 2/4/6 Strongboxes</value>
   </data>
   <data name="HallOfMettle" xml:space="preserve">
     <value>Hall of Mettle</value>
@@ -291,8 +291,8 @@ Level 3: Double Gem Corruption</value>
 Level 2: Guaranteed War Hoard
 Level 3: Guaranteed General</value>
   </data>
-  <data name="SacrificalChamber" xml:space="preserve">
-    <value>Sacrifical Chamber</value>
+  <data name="SacrificialChamber" xml:space="preserve">
+    <value>Sacrificial Chamber</value>
   </data>
   <data name="HallOfOfferings" xml:space="preserve">
     <value>Hall of Offerings</value>
@@ -324,7 +324,7 @@ Level 3: League Specific Items possible</value>
   <data name="CatalystOfCorruption" xml:space="preserve">
     <value>Catalyst of Corruption</value>
   </data>
-  <data name="LocuOfCorruption" xml:space="preserve">
+  <data name="LocusOfCorruption" xml:space="preserve">
     <value>Locus of Corruption</value>
   </data>
   <data name="CorruptionChamberContains" xml:space="preserve">
@@ -363,8 +363,8 @@ Level 3: League Specific Items possible</value>
   <data name="TempestGeneratorModifiers" xml:space="preserve">
     <value>Adds Tempests</value>
   </data>
-  <data name="PoisionGarden" xml:space="preserve">
-    <value>Posion Garden</value>
+  <data name="PoisonGarden" xml:space="preserve">
+    <value>Poison Garden</value>
   </data>
   <data name="CultivarChamber" xml:space="preserve">
     <value>Cultivar Chamber</value>
@@ -372,7 +372,7 @@ Level 3: League Specific Items possible</value>
   <data name="ToxicGrove" xml:space="preserve">
     <value>Toxic Grove</value>
   </data>
-  <data name="PosionGardenContains" xml:space="preserve">
+  <data name="PoisonGardenContains" xml:space="preserve">
     <value>Chaos Damage Rank 3 Recipe
 Level 3: Tacati Mod or Apep's Slumber</value>
   </data>
@@ -386,7 +386,7 @@ Level 3: Tacati Mod or Apep's Slumber</value>
     <value>Temple Defense Workshop</value>
   </data>
   <data name="DefenseResearchLab" xml:space="preserve">
-    <value>Denfense Research Lab</value>
+    <value>Defense Research Lab</value>
   </data>
   <data name="TrapWorkshopContains" xml:space="preserve">
     <value>Traps and Mines Rank 2 Recipe
@@ -436,7 +436,7 @@ Level 3: Guatelitzi Mod or Mask of the Spirit Drinker</value>
     <value>Conduit of Lightning</value>
   </data>
   <data name="LightningWorkshopContains" xml:space="preserve">
-    <value>Level 3: Xopec Mod or Dance o fthe Offered</value>
+    <value>Level 3: Xopec Mod or Dance of the Offered</value>
   </data>
   <data name="LightningWorkshopModifiers" xml:space="preserve">
     <value>Augments the Omnitect with lightning</value>
@@ -444,8 +444,8 @@ Level 3: Guatelitzi Mod or Mask of the Spirit Drinker</value>
   <data name="Hatchery" xml:space="preserve">
     <value>Hatchery</value>
   </data>
-  <data name="AutomationLab" xml:space="preserve">
-    <value>Automation Lab</value>
+  <data name="AutomatonLab" xml:space="preserve">
+    <value>Automaton Lab</value>
   </data>
   <data name="HybridisationChamber" xml:space="preserve">
     <value>Hybridisation Chamber</value>
@@ -478,7 +478,7 @@ Level 3: Guatelitzi Mod or Mask of the Spirit Drinker</value>
     <value>Modifiers</value>
   </data>
   <data name="DoubleGemCorruptionTooltip" xml:space="preserve">
-    <value>Applies to corruptions to a Gem
+    <value>Applies two corruptions to a Gem
 Possible to get a 21/23 Gem</value>
   </data>
   <data name="DoubleCorruptionTooltip" xml:space="preserve">
@@ -490,7 +490,7 @@ Transform into a rare Item with random influence
 Destroy the item</value>
   </data>
   <data name="TopotanteModTooltip" xml:space="preserve">
-    <value>Possible Prefixes: 
+    <value>Prefixe: 
 Add Fire/Cold/Lightning Damage to Attacks
 25% of Physical Damage Converted to Fire/Cold/Lighning Damage
 ---------------------------------------------------------------------
@@ -502,7 +502,7 @@ Add Fire/Cold/Lightning Damage to Spells</value>
   </data>
   <data name="TacatiModTooltip" xml:space="preserve">
     <value>Prefix: 
-155-169% increased Physical Damage+
+155-169% increased Physical Damage
 Gain 9-10% of Physical Damage as Extra Chaos Damage
 --------------------------------------------------------
 70-110% increased Spell Damage
@@ -534,7 +534,7 @@ Adds 17-61 Chaos Damage</value>
 --------------------------------------
 90-138% increased Trap/Mine Damage
 --------------------------------------
-+2 to Level of socketed Trap/Trap or Mine Gems
++2 to Level of socketed Trap or Mine Gems
 --------------------------------------
 Suffix: 
 20-33% increased Trap/Mine Throwing Speed
@@ -598,11 +598,11 @@ Non-Channelling Skills have -6-8 to Total Mana Cost</value>
   </data>
   <data name="CitaqualotlModTooltip" xml:space="preserve">
     <value>Prefix: 
-Minions deal 90-138 increased Damage
+Minions deal 90-138% increased Damage
 ------------------------------------
 +2 to Level of socketed Minion Gems
 ------------------------------------
-Minions deal 70-110 increased Damage
+Minions deal 70-110% increased Damage
 Minions have 5% Chance to deal Double Damage
 ------------------------------------
 Suffix: 
@@ -610,5 +610,23 @@ Minions have 13-40% increased Attack Speed
 Minions have 13-40% increased Cast Speed
 ------------------------------------
 17-30% increased Minion Duration</value>
+  </data>
+  <data name="Legend" xml:space="preserve">
+    <value>Legend</value>
+  </data>
+  <data name="Contains" xml:space="preserve">
+    <value>Contains</value>
+  </data>
+  <data name="Level1" xml:space="preserve">
+    <value>Level 1</value>
+  </data>
+  <data name="Level2" xml:space="preserve">
+    <value>Level 2</value>
+  </data>
+  <data name="Level3" xml:space="preserve">
+    <value>Level 3</value>
+  </data>
+  <data name="Modifiers" xml:space="preserve">
+    <value>Modifiers</value>
   </data>
 </root>

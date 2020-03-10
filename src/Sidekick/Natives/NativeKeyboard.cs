@@ -4,10 +4,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Extensions.Logging;
 using Sidekick.Core.Initialization;
-using Sidekick.Core.Loggers;
 using Sidekick.Core.Natives;
-using Sidekick.Core.Settings;
 using Sidekick.Natives.Helpers;
 using WindowsHook;
 
@@ -15,7 +14,7 @@ namespace Sidekick.Natives
 {
     public class NativeKeyboard : INativeKeyboard, IOnAfterInit, IDisposable
     {
-        private static List<WindowsHook.Keys> KEYS_INVALID = new List<WindowsHook.Keys>() {
+        private static readonly List<WindowsHook.Keys> KEYS_INVALID = new List<WindowsHook.Keys>() {
             WindowsHook.Keys.ControlKey,
             WindowsHook.Keys.LControlKey,
             WindowsHook.Keys.RControlKey,
@@ -29,13 +28,10 @@ namespace Sidekick.Natives
         };
 
         private readonly ILogger logger;
-        private readonly SidekickSettings configuration;
 
-        public NativeKeyboard(ILogger logger,
-            SidekickSettings configuration)
+        public NativeKeyboard(ILogger logger)
         {
             this.logger = logger;
-            this.configuration = configuration;
         }
 
         public bool Enabled { get; set; }
@@ -43,6 +39,7 @@ namespace Sidekick.Natives
         public event Func<string, bool> OnKeyDown;
 
         private IKeyboardMouseEvents hook = null;
+        private bool isDisposed;
 
         public Task OnAfterInit()
         {
@@ -92,54 +89,51 @@ namespace Sidekick.Natives
 
         public void Dispose()
         {
-            if (hook != null) // Hook will be null if auto update was successful
-            {
-                hook.KeyDown -= Hook_KeyDown;
-                hook.Dispose();
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public void SendCommand(KeyboardCommandEnum command)
+        protected virtual void Dispose(bool disposing)
         {
-            switch (command)
+            if (isDisposed)
             {
-                case KeyboardCommandEnum.Copy:
-                    SendKeys.SendWait("^{c}");
-                    break;
-                case KeyboardCommandEnum.FindItems:
-                    SendKeys.SendWait("^{f}^{a}^{v}{Enter}");
-                    break;
-                case KeyboardCommandEnum.Stash_Left:
-                    SendKeys.SendWait("{Left}");
-                    break;
-                case KeyboardCommandEnum.Stash_Right:
-                    SendKeys.SendWait("{Right}");
-                    break;
-                case KeyboardCommandEnum.GoToHideout:
-
-                    SendKeys.SendWait("{Enter}/hideout{Enter}{Enter}{Up}{Up}{Esc}");
-                    break;
-                case KeyboardCommandEnum.LeaveParty:
-                    // This operation is only valid if the user has added their character name to the settings file.
-                    if (string.IsNullOrEmpty(configuration.Character_Name))
-                    {
-                        logger.Log(@"This command requires a ""CharacterName"" to be specified in the settings menu.", LogState.Warning);
-                        return;
-                    }
-                    SendKeys.SendWait($"{{Enter}}/kick {configuration.Character_Name}{{Enter}}");
-                    break;
-                case KeyboardCommandEnum.ReplyToLatestWhisper:
-                    SendKeys.SendWait("{Enter}^{a}^{v}");
-                    break;
+                return;
             }
+
+            if (disposing)
+            {
+                if (hook != null) // Hook will be null if auto update was successful
+                {
+                    hook.KeyDown -= Hook_KeyDown;
+                    hook.Dispose();
+                }
+            }
+
+            isDisposed = true;
+        }
+
+        public void Copy()
+        {
+            SendKeys.SendWait("^{c}");
+        }
+
+        public void Paste()
+        {
+            SendKeys.SendWait("^{v}");
         }
 
         public void SendInput(string input)
         {
             var sendKeyStr = input
                 .Replace("Ctrl+", "^")
-                .Replace("Space", " ");
-            sendKeyStr = Regex.Replace(sendKeyStr, "([a-zA-Z])", "{$1}");
+                .Replace("Space", " ")
+                .Replace("Enter", "{Enter}")
+                .Replace("Up", "{Up}")
+                .Replace("Down", "{Down}")
+                .Replace("Right", "{Right}")
+                .Replace("Left", "{Left}")
+                .Replace("Esc", "{Esc}");
+            sendKeyStr = Regex.Replace(sendKeyStr, "([a-zA-Z]+(?![^{]*\\}))", "{$1}");
             SendKeys.SendWait(sendKeyStr);
         }
 
@@ -149,11 +143,12 @@ namespace Sidekick.Natives
             {
                 case "Ctrl":
                     return Keyboard.IsKeyPressed(Keyboard.VirtualKeyStates.VK_CONTROL)
-                        || Keyboard.IsKeyPressed(Keyboard.VirtualKeyStates.VK_LCONTROL)
-                        || Keyboard.IsKeyPressed(Keyboard.VirtualKeyStates.VK_RCONTROL);
+                               || Keyboard.IsKeyPressed(Keyboard.VirtualKeyStates.VK_LCONTROL)
+                               || Keyboard.IsKeyPressed(Keyboard.VirtualKeyStates.VK_RCONTROL);
                 default:
-                    throw new Exception("Unrecognized key.");
-            }
+                    logger.LogWarning("NativeKeyboard.IsKeyPressed - Unrecognized key - " + key);
+                    return false;
+            };
         }
     }
 }

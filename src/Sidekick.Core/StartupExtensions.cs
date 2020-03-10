@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Sidekick.Core.Initialization;
 using Sidekick.Core.Loggers;
 using Sidekick.Core.Settings;
@@ -21,9 +22,6 @@ namespace Sidekick.Core
 
             var configuration = builder.Build();
 
-            services.AddSingleton(typeof(IConfigurationRoot), configuration);
-            services.AddSingleton(typeof(IConfiguration), configuration);
-
             var sidekickConfiguration = DefaultSettings.CreateDefault();
             configuration.Bind(sidekickConfiguration);
             services.AddSingleton(sidekickConfiguration);
@@ -34,7 +32,9 @@ namespace Sidekick.Core
         public static IServiceCollection AddSidekickCoreServices(this IServiceCollection services)
         {
             services.AddSingleton<IInitializer, Initializer>();
-            services.AddInitializableService<ILogger, Logger>();
+            services.AddSingleton<Logger>();
+            services.AddSingleton<ILogger, Logger>(x => x.GetRequiredService<Logger>());
+            services.AddSingleton<ISidekickLogger, Logger>(x => x.GetRequiredService<Logger>());
             services.AddSingleton<IUpdateManager, UpdateManager>();
             return services;
         }

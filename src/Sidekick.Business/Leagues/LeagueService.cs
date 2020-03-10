@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +8,7 @@ using Sidekick.Core.Settings;
 
 namespace Sidekick.Business.Leagues
 {
-    public class LeagueService : ILeagueService, IOnInit, IDisposable
+    public class LeagueService : ILeagueService, IOnInit
     {
         private readonly IPoeApiClient poeApiClient;
         private readonly SidekickSettings configuration;
@@ -27,17 +26,12 @@ namespace Sidekick.Business.Leagues
         {
             Leagues = null;
             Leagues = await poeApiClient.Fetch<League>();
-
-            if (string.IsNullOrEmpty(configuration.LeagueId))
+            if (string.IsNullOrEmpty(configuration.LeagueId) ||
+                !Leagues.Exists(x => x.Id == configuration.LeagueId))
             {
                 configuration.LeagueId = Leagues.FirstOrDefault().Id;
                 configuration.Save();
             }
-        }
-
-        public void Dispose()
-        {
-            Leagues = null;
         }
     }
 }

@@ -13,6 +13,8 @@ namespace Sidekick.Core.Settings
 
         public string LeagueId { get; set; }
 
+        public int League_SelectedTabIndex { get; set; }
+
         public WikiSetting Wiki_Preferred { get; set; }
 
         public string Character_Name { get; set; }
@@ -22,6 +24,8 @@ namespace Sidekick.Core.Settings
         public bool CloseOverlayWithMouse { get; set; }
 
         public bool EnableCtrlScroll { get; set; }
+
+        public bool EnablePricePrediction { get; set; }
 
         public string Key_CloseWindow { get; set; }
 
@@ -40,6 +44,12 @@ namespace Sidekick.Core.Settings
         public string Key_OpenLeagueOverview { get; set; }
 
         public string Key_ReplyToLatestWhisper { get; set; }
+
+        public string Key_Exit { get; set; }
+
+        public string Key_Stash_Left { get; set; }
+
+        public string Key_Stash_Right { get; set; }
 
         public void Save()
         {

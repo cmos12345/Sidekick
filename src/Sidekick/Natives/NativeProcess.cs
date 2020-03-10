@@ -1,19 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Sidekick.Core.Initialization;
-using Sidekick.Core.Loggers;
-using Sidekick.Core.Natives;
+using Microsoft.Extensions.Logging;
 using Sidekick.Core.Extensions;
-using System.Collections.Generic;
-using System.Linq;
+using Sidekick.Core.Initialization;
+using Sidekick.Core.Natives;
 
 namespace Sidekick.Natives
 {
@@ -28,6 +28,9 @@ namespace Sidekick.Natives
 
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out Rectangle lpRect);
+
+        [DllImport("user32.dll")]
+        static extern bool ClientToScreen(IntPtr hWnd, ref Point lpPoint);
 
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool OpenProcessToken(IntPtr ProcessHandle, uint DesiredAccess, out IntPtr TokenHandle);
@@ -117,17 +120,14 @@ namespace Sidekick.Natives
         {
             get
             {
-                using (var g = Graphics.FromHwnd(GetForegroundWindow()))
-                {
-                    return g.DpiX;
-                }
+                using var g = Graphics.FromHwnd(GetForegroundWindow());
+                return g.DpiX;
             }
         }
 
-        private int GetActiveWindowWidth()
+        public Rectangle GetScreenDimensions()
         {
-            GetWindowRect(GetForegroundWindow(), out var windowRect);
-            return windowRect.Width;
+            return GetWindowRect(GetForegroundWindow(), out var rectangle) ? rectangle : default;
         }
 
         public async Task CheckPermission()
@@ -140,35 +140,33 @@ namespace Sidekick.Natives
             }
             else
             {
-                logger.Log("Permission Sufficient.");
+                logger.LogInformation("Permission Sufficient.");
             }
         }
 
-        private async Task WaitForPathOfExileFocus(int timeout = 200)
+        private async Task WaitForPathOfExileFocus()
         {
             while (IsPathOfExileInFocus == false)
             {
-                await Task.Delay(timeout);
+                await Task.Delay(1000);
             }
         }
 
         private void RestartAsAdmin()
         {
             var message = "This application must be run as administrator.";
-            logger.Log(message, LogState.Error);
+            logger.LogError(message);
 
             if (MessageBox.Show(message + "\nClick Yes will restart as administrator automatically.", "Sidekick", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 Mutex?.Close();
                 try
                 {
-                    using (var p = new Process())
-                    {
-                        p.StartInfo.FileName = Application.ExecutablePath;
-                        p.StartInfo.UseShellExecute = true;
-                        p.StartInfo.Verb = "runas";
-                        p.Start();
-                    }
+                    using var p = new Process();
+                    p.StartInfo.FileName = Application.ExecutablePath;
+                    p.StartInfo.UseShellExecute = true;
+                    p.StartInfo.Verb = "runas";
+                    p.Start();
                 }
                 catch (Win32Exception e)
                 {
@@ -227,7 +225,7 @@ namespace Sidekick.Natives
             }
             catch (Exception e)
             {
-                logger.Log(e.Message, LogState.Error);
+                logger.LogError(e, e.Message);
                 RestartAsAdmin();
             }
 

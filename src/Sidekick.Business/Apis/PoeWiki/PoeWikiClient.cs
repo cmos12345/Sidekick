@@ -1,6 +1,6 @@
 using System;
+using Microsoft.Extensions.Logging;
 using Sidekick.Business.Languages;
-using Sidekick.Core.Loggers;
 using Sidekick.Core.Natives;
 
 namespace Sidekick.Business.Apis.PoeWiki
@@ -41,7 +41,7 @@ namespace Sidekick.Business.Apis.PoeWiki
             // Does not work for unique items that are not identified.
             if (string.IsNullOrEmpty(item.Name))
             {
-                logger.Log("Failed to open the wiki for the specified item.", LogState.Error);
+                logger.LogError("Failed to open the wiki for the specified item.");
                 return;
             }
 
@@ -55,7 +55,7 @@ namespace Sidekick.Business.Apis.PoeWiki
         private Uri CreateItemWikiLink(Parsers.Models.Item item)
         {
             // determine search link, so wiki can be opened for any item
-            var searchLink = item.Rarity == languageProvider.Language.RarityUnique ? item.Name : item.Type;
+            var searchLink = item.Rarity == Parsers.Models.Rarity.Unique ? item.Name : item.Type;
             // replace space encodes with '_' to match the link layout of the poe wiki and then url encode it
             var itemLink = System.Net.WebUtility.UrlEncode(searchLink.Replace(" ", "_"));
             return new Uri(WIKI_BASE_URI + itemLink);

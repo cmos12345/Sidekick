@@ -4,15 +4,14 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Sidekick.Business.Apis.Poe;
 using Sidekick.Business.Apis.Poe.Models;
 using Sidekick.Business.Categories;
 using Sidekick.Business.Http;
 using Sidekick.Business.Languages;
-using Sidekick.Business.Parsers.Models;
 using Sidekick.Business.Trades.Requests;
 using Sidekick.Business.Trades.Results;
-using Sidekick.Core.Loggers;
 using Sidekick.Core.Natives;
 using Sidekick.Core.Settings;
 
@@ -47,17 +46,18 @@ namespace Sidekick.Business.Trades
 
         private async Task<QueryResult<string>> Query(Parsers.Models.Item item)
         {
-            logger.Log("Querying Trade API.");
+            logger.LogInformation("Querying Trade API.");
             QueryResult<string> result = null;
 
             try
             {
                 // TODO: More complex logic for determining bulk vs regular search
                 // Maybe also add Fragments to bulk search
-                string path = "";
-                string json = "";
+                var path = "";
+                var json = "";
                 string baseUri = null;
-                if (item is CurrencyItem || item is DivinationCardItem)
+
+                if (IsBulk(item.Type))
                 {
                     path = $"exchange/{configuration.LeagueId}";
                     json = JsonSerializer.Serialize(new BulkQueryRequest(item, languageProvider.Language, staticItemCategoryService), poeApiClient.Options);
@@ -66,7 +66,7 @@ namespace Sidekick.Business.Trades
                 else
                 {
                     path = $"search/{configuration.LeagueId}";
-                    json = JsonSerializer.Serialize(new QueryRequest(item, languageProvider.Language), poeApiClient.Options);
+                    json = JsonSerializer.Serialize(new QueryRequest(item), poeApiClient.Options);
                     baseUri = languageProvider.Language.PoeTradeSearchBaseUrl + configuration.LeagueId;
                 }
 
@@ -83,13 +83,12 @@ namespace Sidekick.Business.Trades
                 }
                 else
                 {
-                    logger.Log("Querying failed.");
+                    logger.LogError("Querying failed.");
                 }
             }
             catch (Exception e)
             {
-                logger.Log("Querying error.");
-                logger.LogException(e);
+                logger.LogError(e, "Querying error.");
                 return null;
             }
 
@@ -97,7 +96,7 @@ namespace Sidekick.Business.Trades
 
         }
 
-        public async Task<QueryResult<ListingResult>> GetListingsForSubsequentPages(Parsers.Models.Item item, int nextPageToFetch)
+        public async Task<QueryResult<SearchResult>> GetListingsForSubsequentPages(Parsers.Models.Item item, int nextPageToFetch)
         {
             var queryResult = await Query(item);
 
@@ -105,12 +104,11 @@ namespace Sidekick.Business.Trades
             {
                 var result = await Task.WhenAll(Enumerable.Range(nextPageToFetch, 1).Select(x => GetListings(queryResult, x)));
 
-                return new QueryResult<ListingResult>()
+                return new QueryResult<SearchResult>()
                 {
                     Id = queryResult.Id,
                     Result = result.Where(x => x != null).SelectMany(x => x.Result).ToList(),
                     Total = queryResult.Total,
-                    Item = item,
                     Uri = queryResult.Uri
                 };
             }
@@ -118,7 +116,7 @@ namespace Sidekick.Business.Trades
             return null;
         }
 
-        public async Task<QueryResult<ListingResult>> GetListings(Parsers.Models.Item item)
+        public async Task<QueryResult<SearchResult>> GetListings(Parsers.Models.Item item)
         {
             var queryResult = await Query(item);
 
@@ -126,12 +124,11 @@ namespace Sidekick.Business.Trades
             {
                 var result = await Task.WhenAll(Enumerable.Range(0, 2).Select(x => GetListings(queryResult, x)));
 
-                return new QueryResult<ListingResult>()
+                return new QueryResult<SearchResult>()
                 {
                     Id = queryResult.Id,
                     Result = result.Where(x => x != null).SelectMany(x => x.Result).ToList(),
                     Total = queryResult.Total,
-                    Item = item,
                     Uri = queryResult.Uri
                 };
             }
@@ -139,10 +136,10 @@ namespace Sidekick.Business.Trades
             return null;
         }
 
-        public async Task<QueryResult<ListingResult>> GetListings(QueryResult<string> queryResult, int page = 0)
+        public async Task<QueryResult<SearchResult>> GetListings(QueryResult<string> queryResult, int page = 0)
         {
-            logger.Log($"Fetching Trade API Listings from Query {queryResult.Id} page {page + 1}.");
-            QueryResult<ListingResult> result = null;
+            logger.LogInformation($"Fetching Trade API Listings from Query {queryResult.Id} page {page + 1}.");
+            QueryResult<SearchResult> result = null;
 
             try
             {
@@ -150,7 +147,7 @@ namespace Sidekick.Business.Trades
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStreamAsync();
-                    result = await JsonSerializer.DeserializeAsync<QueryResult<ListingResult>>(content, new JsonSerializerOptions()
+                    result = await JsonSerializer.DeserializeAsync<QueryResult<SearchResult>>(content, new JsonSerializerOptions()
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     });
@@ -168,6 +165,11 @@ namespace Sidekick.Business.Trades
         {
             var queryResult = await Query(item);
             nativeBrowser.Open(queryResult.Uri);
+        }
+
+        private bool IsBulk(string type)
+        {
+            return staticItemCategoryService.Lookup.ContainsKey(type);
         }
     }
 }

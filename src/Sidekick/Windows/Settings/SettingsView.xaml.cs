@@ -1,30 +1,24 @@
+using System;
 using System.Windows;
-using System.Windows.Forms.Integration;
-using System.Windows.Input;
 using Sidekick.UI.Settings;
-using Sidekick.UI.Views;
 
 namespace Sidekick.Windows.Settings
 {
-    public partial class SettingsView : Window, ISidekickView
+    public partial class SettingsView : BaseWindow
     {
         private readonly ISettingsViewModel viewModel;
 
-        public SettingsView(ISettingsViewModel viewModel)
+        public SettingsView(
+            IServiceProvider serviceProvider,
+            ISettingsViewModel viewModel)
+            : base(serviceProvider)
         {
             this.viewModel = viewModel;
 
             InitializeComponent();
             DataContext = viewModel;
 
-            ElementHost.EnableModelessKeyboardInterop(this);
-
             Show();
-        }
-
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
         }
 
         private void SaveChanges_Click(object sender, RoutedEventArgs e)

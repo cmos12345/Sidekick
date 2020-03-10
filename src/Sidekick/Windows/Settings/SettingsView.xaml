@@ -1,58 +1,47 @@
-<Window
+<base:BaseWindow
     x:Class="Sidekick.Windows.Settings.SettingsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:UC="clr-namespace:Sidekick.Windows.Settings.UserControls"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:r="clr-namespace:Sidekick.Localization.Settings;assembly=Sidekick.Localization"
+    xmlns:base="clr-namespace:Sidekick.Windows"
+    xmlns:loc="clr-namespace:Sidekick.Windows"
+    xmlns:resx="clr-namespace:Sidekick.Localization.Settings;assembly=Sidekick.Localization"
+    Title="Settings - Sidekick"
     Width="680"
     Height="400"
-    AllowsTransparency="True"
-    Background="{DynamicResource SolidColorBrush_BackgroundTransparent}"
+    loc:Translation.ResourceManager="{x:Static resx:SettingResources.ResourceManager}"
     MouseLeftButtonDown="Window_MouseLeftButtonDown"
-    ResizeMode="NoResize"
-    ShowInTaskbar="False"
-    Topmost="True"
-    WindowStartupLocation="CenterScreen"
-    WindowStyle="None"
-    mc:Ignorable="d">
+    WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Styles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <ResourceDictionary Source="/Styles/Main.xaml" />
     </Window.Resources>
 
-    <DockPanel Margin="10">
+    <Window.Style>
+        <Style BasedOn="{StaticResource {x:Type Window}}" TargetType="Window" />
+    </Window.Style>
+
+    <DockPanel
+        Width="600"
+        Height="400"
+        Margin="{StaticResource Spacer}">
         <WrapPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom">
+            <Button Click="DiscardChanges_Click" Content="{loc:Loc Cancel}" />
             <Button
-                Width="100"
-                Height="40"
-                Click="DiscardChanges_Click"
-                Content="{x:Static r:SettingResources.Cancel}" />
-            <Button
-                Width="100"
-                Height="40"
+                Margin="{StaticResource SpacerLeft}"
                 Click="SaveChanges_Click"
-                Content="{x:Static r:SettingResources.Ok}" />
+                Content="{loc:Loc Ok}" />
         </WrapPanel>
-        <TabControl
-            Grid.Row="0"
-            Background="Transparent"
-            BorderBrush="Transparent"
-            TabStripPlacement="Left">
-            <TabItem Header="{x:Static r:SettingResources.Tab_General}">
+        <TabControl Margin="{StaticResource SpacerBottom}" TabStripPlacement="Left">
+            <TabItem Header="{loc:Loc Tab_General}">
                 <ScrollViewer>
-                    <StackPanel Margin="5,0,0,0">
-                        <GroupBox Header="{x:Static r:SettingResources.Language_Title}">
+                    <StackPanel>
+                        <GroupBox Header="{loc:Loc Language_Title}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Label Content="{x:Static r:SettingResources.Language_UI}" />
+                                <Label Content="{loc:Loc Language_UI}" />
                                 <ComboBox
                                     Grid.Column="1"
                                     DisplayMemberPath="Key"
@@ -61,7 +50,7 @@
                                     SelectedValuePath="Value" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox Header="{x:Static r:SettingResources.Character_Title}">
+                        <GroupBox Header="{loc:Loc Character_Title}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
@@ -71,31 +60,27 @@
                                     <RowDefinition />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
-                                <Label Content="{x:Static r:SettingResources.Character_League}" />
+                                <Label Content="{loc:Loc Character_League}" />
                                 <ComboBox
                                     Grid.Column="1"
                                     DisplayMemberPath="Key"
                                     ItemsSource="{Binding Path=LeagueOptions}"
                                     SelectedValue="{Binding Path=Settings.LeagueId}"
                                     SelectedValuePath="Value" />
-                                <Label Grid.Row="1" Content="{x:Static r:SettingResources.Character_Name}" />
+                                <Label Grid.Row="1" Content="{loc:Loc Character_Name}" />
                                 <TextBox
                                     Grid.Row="1"
                                     Grid.Column="1"
-                                    Background="{DynamicResource SolidColorBrush_Text}"
-                                    BorderBrush="{DynamicResource SolidColorBrush_Primary}"
-                                    BorderThickness="1"
-                                    IsReadOnly="False"
                                     Text="{Binding Path=Settings.Character_Name}" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox Header="{x:Static r:SettingResources.Wiki_Title}">
+                        <GroupBox Header="{loc:Loc Wiki_Title}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Label Content="{x:Static r:SettingResources.Wiki_Preferred}" />
+                                <Label Content="{loc:Loc Wiki_Preferred}" />
                                 <ComboBox
                                     Grid.Column="1"
                                     DisplayMemberPath="Key"
@@ -104,17 +89,18 @@
                                     SelectedValuePath="Value" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox Header="{x:Static r:SettingResources.Other_Title}">
+                        <GroupBox Header="{loc:Loc Other_Title}">
                             <StackPanel>
-                                <CheckBox Content="{x:Static r:SettingResources.Other_RetainClipboard}" IsChecked="{Binding Path=Settings.RetainClipboard}" />
-                                <CheckBox Content="{x:Static r:SettingResources.Other_CloseWithMouseClick}" IsChecked="{Binding Path=Settings.CloseOverlayWithMouse}" />
-                                <CheckBox Content="{x:Static r:SettingResources.Other_TabScroll}" IsChecked="{Binding Path=Settings.EnableCtrlScroll}" />
+                                <CheckBox Content="{loc:Loc Other_RetainClipboard}" IsChecked="{Binding Path=Settings.RetainClipboard}" />
+                                <CheckBox Content="{loc:Loc Other_CloseWithMouseClick}" IsChecked="{Binding Path=Settings.CloseOverlayWithMouse}" />
+                                <CheckBox Content="{loc:Loc Other_TabScroll}" IsChecked="{Binding Path=Settings.EnableCtrlScroll}" />
+                                <CheckBox Content="{loc:Loc Other_PricePrediction}" IsChecked="{Binding Path=Settings.EnablePricePrediction}" />
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="{x:Static r:SettingResources.Tab_Keybindings}">
+            <TabItem Header="{loc:Loc Tab_Keybindings}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding Path=Keybinds}">
                         <ItemsControl.ItemTemplate>
@@ -130,4 +116,4 @@
             </TabItem>
         </TabControl>
     </DockPanel>
-</Window>
+</base:BaseWindow>

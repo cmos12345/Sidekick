@@ -1,19 +1,37 @@
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Sidekick.Business.Chat;
 using Sidekick.Core.Natives;
 
 namespace Sidekick.Business.Whispers
 {
     public class WhisperService : IWhisperService
     {
-        private INativeProcess pathOfExileProcess;
-        public WhisperService(INativeProcess pathOfExileProcess)
+        private readonly INativeProcess pathOfExileProcess;
+        private readonly IChatService chatService;
+
+        public WhisperService(
+            INativeProcess pathOfExileProcess,
+            IChatService chatService)
         {
             this.pathOfExileProcess = pathOfExileProcess;
+            this.chatService = chatService;
         }
 
-        public string GetLatestWhisperCharacterName()
+        public Task<bool> ReplyToLatestWhisper()
+        {
+            var characterName = GetLatestWhisperCharacterName();
+            if (!string.IsNullOrEmpty(characterName))
+            {
+                chatService.StartWriting($"@{characterName} ");
+                return Task.FromResult(true);
+            }
+            return Task.FromResult(false);
+        }
+
+        private string GetLatestWhisperCharacterName()
         {
             var clientLogFile = pathOfExileProcess?.ClientLogPath;
             if (!pathOfExileProcess.IsPathOfExileInFocus || clientLogFile == null) return string.Empty;

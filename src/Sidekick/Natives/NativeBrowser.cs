@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics;
-using Sidekick.Core.Loggers;
+using Microsoft.Extensions.Logging;
 using Sidekick.Core.Natives;
 
 namespace Sidekick.Natives
@@ -16,8 +16,13 @@ namespace Sidekick.Natives
 
         public void Open(Uri uri)
         {
-            logger.Log($"Opening in browser: {uri.AbsoluteUri}");
-            Process.Start(uri.AbsoluteUri);
+            logger.LogInformation($"Opening in browser: {uri.AbsoluteUri}");
+            var psi = new ProcessStartInfo
+            {
+                FileName = uri.AbsoluteUri,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
     }
 }

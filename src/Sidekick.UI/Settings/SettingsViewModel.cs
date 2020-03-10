@@ -11,21 +11,24 @@ namespace Sidekick.UI.Settings
 {
     public class SettingsViewModel : ISettingsViewModel, IDisposable
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private readonly IUILanguageProvider uiLanguageProvider;
         private readonly SidekickSettings sidekickSettings;
         private readonly INativeKeyboard nativeKeyboard;
+        private readonly IKeybindEvents keybindEvents;
+        private bool isDisposed;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public SettingsViewModel(IUILanguageProvider uiLanguageProvider,
             SidekickSettings sidekickSettings,
             INativeKeyboard nativeKeyboard,
-            ILeagueService leagueService)
+            ILeagueService leagueService,
+            IKeybindEvents keybindEvents)
         {
             this.uiLanguageProvider = uiLanguageProvider;
             this.sidekickSettings = sidekickSettings;
             this.nativeKeyboard = nativeKeyboard;
-
+            this.keybindEvents = keybindEvents;
             Settings = new SidekickSettings();
             AssignValues(sidekickSettings, Settings);
 
@@ -45,17 +48,23 @@ namespace Sidekick.UI.Settings
             nativeKeyboard.OnKeyDown += NativeKeyboard_OnKeyDown;
         }
 
-        public SidekickSettings Settings { get; private set; }
-
         public ObservableDictionary<string, string> Keybinds { get; private set; } = new ObservableDictionary<string, string>();
-
-        public string CurrentKey { get; set; }
 
         public ObservableDictionary<string, string> WikiOptions { get; private set; } = new ObservableDictionary<string, string>();
 
         public ObservableDictionary<string, string> LeagueOptions { get; private set; } = new ObservableDictionary<string, string>();
 
         public ObservableDictionary<string, string> UILanguageOptions { get; private set; } = new ObservableDictionary<string, string>();
+
+        public string CurrentKey { get; set; }
+
+        public SidekickSettings Settings { get; private set; }
+
+        // This is called when CurrentKey changes, thanks to Fody
+        public void OnCurrentKeyChanged()
+        {
+            keybindEvents.Enabled = CurrentKey == null;
+        }
 
         public void Save()
         {
@@ -113,7 +122,23 @@ namespace Sidekick.UI.Settings
 
         public void Dispose()
         {
-            nativeKeyboard.OnKeyDown -= NativeKeyboard_OnKeyDown;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                nativeKeyboard.OnKeyDown -= NativeKeyboard_OnKeyDown;
+            }
+
+            isDisposed = true;
         }
     }
 }
